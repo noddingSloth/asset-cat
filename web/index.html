@@ -1,72 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>asset-cat // 3D Wireframe Visualizer</title>
-    <!-- Google Fonts: Outfit -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <!-- Custom Style -->
+    <title>asset-cat</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <div class="glow-bg"></div>
-    
-    <div class="dashboard">
-        <header>
-            <div class="logo">
-                <span class="icon">📦</span>
-                <h1>asset-cat</h1>
-                <span class="badge">v0.1.0</span>
-            </div>
-            <div class="status-container">
-                <span class="status-dot pulsing"></span>
-                <span class="status-text">Disconnected</span>
-            </div>
-        </header>
-
-        <main class="main-content">
-            <div class="canvas-container">
-                <canvas id="renderCanvas" width="800" height="600"></canvas>
-                <div class="canvas-overlay" id="overlay">
-                    <h2>Ready to Render</h2>
-                    <p>Start the Go WebSocket server to stream 3D asset wireframes.</p>
-                </div>
-            </div>
-
-            <aside class="controls-panel">
-                <h2>Visualizer Controls</h2>
-                <p class="description">Tune the 3D projection parameters in real-time.</p>
-                
-                <div class="control-group">
-                    <label for="projectionMode">Projection Type</label>
-                    <select id="projectionMode" class="styled-select">
-                        <option value="perspective">Perspective</option>
-                        <option value="orthographic">Orthographic</option>
-                    </select>
-                </div>
-
-                <div class="control-group">
-                    <label for="rotationSpeed">Rotation Speed</label>
-                    <input type="range" id="rotationSpeed" min="0" max="100" value="30" class="styled-slider">
-                </div>
-
-                <div class="control-group">
-                    <label for="lineColor">Wireframe Color</label>
-                    <div class="color-picker-wrapper">
-                        <input type="color" id="lineColor" value="#00ffcc" class="styled-color-picker">
-                        <span class="color-value">#00ffcc</span>
-                    </div>
-                </div>
-
-                <button id="connectBtn" class="primary-btn">Connect Stream</button>
-            </aside>
-        </main>
+    <canvas id="canvas"></canvas>
+    <div id="info">
+        <span id="fps">0 FPS</span>
+        <span id="clients">0 clients</span>
     </div>
-
-    <!-- Custom Logic -->
     <script src="app.js"></script>
 </body>
+
 </html>

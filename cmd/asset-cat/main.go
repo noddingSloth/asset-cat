@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/noddingSloth/asset-cat/internal/canvas/html"
 	"github.com/noddingSloth/asset-cat/internal/canvas/terminal"
 	"github.com/noddingSloth/asset-cat/internal/extractor"
 	"github.com/noddingSloth/asset-cat/internal/pipeline"
@@ -245,6 +246,7 @@ func serveCmd() {
 	flags := flag.NewFlagSet("serve", flag.ExitOnError)
 	inputPath := flags.String("input", "", "Path to .glb file (or '-' for stdin)")
 	addr := flags.String("addr", ":8080", "Address to listen on")
+	staticDir := flags.String("static", "web", "Path to static files directory")
 	flags.Parse(os.Args[1:])
 
 	file, err := openInput(*inputPath)
@@ -254,7 +256,6 @@ func serveCmd() {
 	}
 	defer file.Close()
 
-	// Read model data for the server
 	data, err := io.ReadAll(file)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error reading input: %v\n", err)
@@ -268,11 +269,53 @@ func serveCmd() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Starting web server on %s\n", *addr)
-	fmt.Printf("Serving model with %d meshes\n", len(model.Meshes))
-	fmt.Printf("Open http://localhost%s in your browser\n", *addr)
+	// Create engine without a canvas — we'll project manually
+	engine, err := pipeline.NewEngineFromReader(
+		&byteReader{data: data},
+		nil, // no canvas for web mode
+		800, 600,
+	)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error creating engine: %v\n", err)
+		os.Exit(1)
+	}
+	engine.AutoPositionCamera()
 
-	// TODO: wire up HTML canvas server with the model
-	_ = model
-	_ = data
+	srv := html.NewServer(*addr, *staticDir)
+
+	// Start animation loop in background
+	go func() {
+		ticker := time.NewTicker(33 * time.Millisecond)
+		defer ticker.Stop()
+
+		for range ticker.C {
+			engine.RotateCamera(0.03)
+			engine.Width = 800 // will be overridden by client
+			engine.Height = 600
+
+			frame := html.Frame{
+				Clear: true,
+				Lines: engine.ProjectLines(),
+			}
+			srv.Broadcast(frame)
+		}
+	}()
+
+	fmt.Printf("Starting web server on %s\n", *addr)
+	fmt.Printf("Open http://localhost%s in your browser\n", *addr)
+	fmt.Printf("Model: %d meshes, %d vertices total\n",
+		len(model.Meshes),
+		func() int {
+			count := 0
+			for _, m := range model.Meshes {
+				count += len(m.Vertices)
+			}
+			return count
+		}(),
+	)
+
+	if err := srv.Start(); err != nil {
+		fmt.Fprintf(os.Stderr, "Server error: %v\n", err)
+		os.Exit(1)
+	}
 }

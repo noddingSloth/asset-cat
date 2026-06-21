@@ -119,3 +119,42 @@ func (e *Engine) AutoPositionCamera() {
 	// Set scale to fill viewport
 	e.Scale = 1.0
 }
+
+// ProjectLines returns all projected edges as 2D line coordinates.
+// Used by the web server to stream lines without a canvas.
+func (e *Engine) ProjectLines() [][4]float64 {
+	if e.Model == nil {
+		return nil
+	}
+
+	aspect := float64(e.Width) / float64(e.Height)
+	vpMatrix := e.Camera.ViewProjectionMatrix(aspect)
+
+	var lines [][4]float64
+
+	for _, mesh := range e.Model.Meshes {
+		projected := make([]geom.Vector3, len(mesh.Vertices))
+		for i, v := range mesh.Vertices {
+			projected[i] = v.Transform(vpMatrix)
+		}
+
+		for _, edge := range mesh.Edges {
+			if edge[0] >= len(projected) || edge[1] >= len(projected) {
+				continue
+			}
+			p1 := projected[edge[0]]
+			p2 := projected[edge[1]]
+
+			if p1.Z < -1 || p1.Z > 1 || p2.Z < -1 || p2.Z > 1 {
+				continue
+			}
+
+			x1, y1 := e.ViewportTransform(p1)
+			x2, y2 := e.ViewportTransform(p2)
+
+			lines = append(lines, [4]float64{x1, y1, x2, y2})
+		}
+	}
+
+	return lines
+}
