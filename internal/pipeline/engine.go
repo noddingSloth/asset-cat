@@ -16,6 +16,7 @@ type Engine struct {
 	Canvas canvas.Canvas2D
 	Width  int
 	Height int
+	Scale  float64 // viewport scale factor for zoom
 }
 
 // NewEngineFromReader creates an Engine by extracting a model from a GLB reader.
@@ -32,14 +33,17 @@ func NewEngineFromReader(r io.Reader, canvas canvas.Canvas2D, width, height int)
 		Canvas: canvas,
 		Width:  width,
 		Height: height,
+		Scale:  1.0,
 	}, nil
 }
 
 // ViewportTransform converts normalized device coordinates (-1 to 1) to screen coordinates.
-// Also flips Y so that +Y is up (NDC) vs down (screen).
 func (e *Engine) ViewportTransform(ndc geom.Vector3) (float64, float64) {
-	x := (ndc.X + 1.0) * 0.5 * float64(e.Width)
-	y := (1.0 - ndc.Y) * 0.5 * float64(e.Height) // Flip Y
+	sx := ndc.X * e.Scale
+	sy := ndc.Y * e.Scale
+
+	x := (sx + 1.0) * 0.5 * float64(e.Width)
+	y := (1.0 - sy) * 0.5 * float64(e.Height)
 	return x, y
 }
 
@@ -55,20 +59,18 @@ func (e *Engine) RenderFrame() error {
 	vpMatrix := e.Camera.ViewProjectionMatrix(aspect)
 
 	for _, mesh := range e.Model.Meshes {
-		// Project all vertices once
 		projected := make([]geom.Vector3, len(mesh.Vertices))
 		for i, v := range mesh.Vertices {
-			// Transform vertex by combined view-projection matrix
 			projected[i] = v.Transform(vpMatrix)
 		}
 
-		// Draw edges
 		for _, edge := range mesh.Edges {
+			if edge[0] >= len(projected) || edge[1] >= len(projected) {
+				continue
+			}
 			p1 := projected[edge[0]]
 			p2 := projected[edge[1]]
 
-			// Skip edges where either vertex is behind the camera (w < 0 after perspective divide)
-			// We check Z after projection — in NDC, visible Z is between -1 and 1
 			if p1.Z < -1 || p1.Z > 1 || p2.Z < -1 || p2.Z > 1 {
 				continue
 			}
@@ -85,7 +87,6 @@ func (e *Engine) RenderFrame() error {
 
 // RotateCamera rotates the camera around the Y axis by the given angle (radians).
 func (e *Engine) RotateCamera(angle float64) {
-	// Rotate camera position around target
 	offset := e.Camera.Position.Sub(e.Camera.Target)
 	rotMatrix := geom.RotateY(angle)
 	rotatedOffset := offset.TransformDirection(rotMatrix)
