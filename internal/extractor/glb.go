@@ -127,8 +127,8 @@ func (e *GLBExtractor) ReadChunks() ([]Chunk, error) {
 	return chunks, nil
 }
 
-// ExtractMeshes reads and parses the GLB file, returning all static mesh geometry.
-func (e *GLBExtractor) ExtractMeshes() ([]Mesh, error) {
+// ExtractModel reads and parses the GLB file, returning a Model with all static mesh geometry.
+func (e *GLBExtractor) ExtractModel() (*Model, error) {
 	// 1. Read header (advances reader past 12 bytes)
 	_, err := e.ReadHeader()
 	if err != nil {
@@ -162,18 +162,29 @@ func (e *GLBExtractor) ExtractMeshes() ([]Mesh, error) {
 	}
 
 	// 5. Extract meshes
-	var meshes []Mesh
+	model := &Model{
+		Meshes: make([]Mesh, 0, len(gltf.Meshes)),
+	}
 	for _, m := range gltf.Meshes {
 		for _, prim := range m.Primitives {
 			mesh, err := extractPrimitive(prim, gltf, binData)
 			if err != nil {
 				return nil, fmt.Errorf("extracting primitive: %w", err)
 			}
-			meshes = append(meshes, *mesh)
+			model.Meshes = append(model.Meshes, *mesh)
 		}
 	}
 
-	return meshes, nil
+	return model, nil
+}
+
+// ExtractMeshes is a convenience method that returns just the mesh slice.
+func (e *GLBExtractor) ExtractMeshes() ([]Mesh, error) {
+	model, err := e.ExtractModel()
+	if err != nil {
+		return nil, err
+	}
+	return model.Meshes, nil
 }
 
 func extractPrimitive(prim glTFPrimitive, gltf glTF, binData []byte) (*Mesh, error) {
