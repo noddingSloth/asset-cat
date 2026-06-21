@@ -175,6 +175,9 @@ func (e *GLBExtractor) ExtractModel() (*Model, error) {
 		}
 	}
 
+	// 6. Compute bounding box across all meshes
+	model.ComputeBoundingBox()
+
 	return model, nil
 }
 

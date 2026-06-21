@@ -155,6 +155,7 @@ func TestViewportTransform(t *testing.T) {
 	engine := &pipeline.Engine{
 		Width:  80,
 		Height: 24,
+		Scale:  1.0,
 	}
 
 	tests := []struct {
@@ -165,7 +166,7 @@ func TestViewportTransform(t *testing.T) {
 		{
 			name:     "origin",
 			ndc:      geom.Vector3{X: 0, Y: 0, Z: 0},
-			expected: [2]float64{40, 12}, // center of 80x24
+			expected: [2]float64{40, 12},
 		},
 		{
 			name:     "top-left",

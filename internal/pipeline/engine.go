@@ -98,3 +98,24 @@ func (e *Engine) ZoomCamera(delta float64) {
 	direction := e.Camera.Target.Sub(e.Camera.Position).Normalize()
 	e.Camera.Position = e.Camera.Position.Add(direction.Scale(delta))
 }
+
+// AutoPositionCamera sets the camera distance and scale based on the model's bounding box.
+func (e *Engine) AutoPositionCamera() {
+	if e.Model == nil {
+		return
+	}
+
+	bb := e.Model.BoundingBox
+	maxDim := bb.MaxDimension()
+	if maxDim == 0 {
+		return
+	}
+
+	// Position camera far enough to see the whole model
+	// FOV=60°, so at distance D, visible half-height = D * tan(30°) ≈ D * 0.577
+	fovHalf := 0.577                             // tan(30°) for FOV=60
+	e.Camera.Position.Z = maxDim / fovHalf * 1.2 // 20% margin
+
+	// Set scale to fill viewport
+	e.Scale = 1.0
+}

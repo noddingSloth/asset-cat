@@ -99,14 +99,8 @@ func createEngine(file *os.File, termWidth, termHeight int) *pipeline.Engine {
 		os.Exit(1)
 	}
 
-	engine.Camera.Position.Z = 1.5
-	engine.Scale = float64(renderRows) / 25.0
-	if engine.Scale < 0.8 {
-		engine.Scale = 0.8
-	}
-	if engine.Scale > 4.0 {
-		engine.Scale = 4.0
-	}
+	// Auto-position camera based on model's bounding box
+	engine.AutoPositionCamera()
 
 	return engine
 }
