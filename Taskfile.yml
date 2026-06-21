@@ -12,10 +12,22 @@ tasks:
       - go build -o bin/asset-cat cmd/asset-cat/main.go
 
   run:
-    desc: Build and run the asset-cat executable
+    desc: Run the terminal renderer
     deps: [build]
     cmds:
-      - ./bin/asset-cat {{.CLI_ARGS}}
+      - ./bin/asset-cat run --input {{.CLI_ARGS}}
+
+  json:
+    desc: Output extracted model as JSON
+    deps: [build]
+    cmds:
+      - ./bin/asset-cat json --input {{.CLI_ARGS}}
+
+  serve:
+    desc: Start the web viewer server
+    deps: [build]
+    cmds:
+      - ./bin/asset-cat serve --input {{.CLI_ARGS}}
 
   clean:
     desc: Remove generated binaries and build artifacts

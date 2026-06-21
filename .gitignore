@@ -32,3 +32,5 @@ go.work.sum
 # .vscode/
 
 context.txt
+
+bin/
