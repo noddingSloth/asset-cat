@@ -1,0 +1,23 @@
+version: '3'
+
+tasks:
+  test:
+    desc: Run all Go unit tests
+    cmds:
+      - go test -v ./...
+
+  build:
+    desc: Compile the asset-cat CLI binary
+    cmds:
+      - go build -o bin/asset-cat cmd/asset-cat/main.go
+
+  run:
+    desc: Build and run the asset-cat executable
+    deps: [build]
+    cmds:
+      - ./bin/asset-cat {{.CLI_ARGS}}
+
+  clean:
+    desc: Remove generated binaries and build artifacts
+    cmds:
+      - rm -rf bin/

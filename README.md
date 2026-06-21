@@ -60,6 +60,13 @@ Architectural decisions are tracked using [Architecture Decision Records (ADRs)]
 
 ```text
 .
+├── assets/                   # Sample GLB files and source documentation
+│   └── tux/
+│       ├── source.txt        # Model metadata
+│       └── tux.glb           # Sample 3D model
+├── cmd/
+│   └── asset-cat/
+│       └── main.go           # Application entrypoint
 ├── design/
 │   └── decisions/
 │       └── architecture/     # Architecture Decision Records (ADRs)
@@ -67,9 +74,33 @@ Architectural decisions are tracked using [Architecture Decision Records (ADRs)]
 │           ├── 0002-use-go-as-the-primary-programming-language.md
 │           ├── 0003-pipeline-for-3d-wireframe-rendering.md
 │           └── 0004-terminal-and-html-canvas-rendering-interfaces.md
+├── internal/
+│   ├── geom/                 # 3D Math & Geometry Engine
+│   │   ├── vector3.go / vector3_test.go
+│   │   ├── matrix4.go / matrix4_test.go
+│   │   └── camera.go / camera_test.go
+│   ├── extractor/            # Asset parsing and edge extraction
+│   │   ├── glb.go / glb_test.go
+│   │   └── mesh.go / mesh_test.go
+│   ├── canvas/               # 2D Render Output Abstractions
+│   │   ├── canvas.go / canvas_test.go
+│   │   ├── terminal/         # stdout / Braille terminal drawing
+│   │   │   ├── terminal.go / terminal_test.go
+│   │   │   └── braille.go / braille_test.go
+│   │   └── html/             # HTTP & WebSockets coordinate broadcaster
+│   │       ├── server.go / server_test.go
+│   │       └── client.go / client_test.go
+│   └── pipeline/             # Pipe Orchestrator
+│       └── engine.go / engine_test.go
+├── web/                      # HTML5 Canvas / Visualizer Frontend
+│   ├── index.html
+│   ├── style.css
+│   └── app.js
+├── go.mod
 ├── LICENSE
 └── README.md                 # This file
 ```
+
 
 ---
 
