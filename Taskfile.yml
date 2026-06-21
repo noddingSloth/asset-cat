@@ -21,3 +21,20 @@ tasks:
     desc: Remove generated binaries and build artifacts
     cmds:
       - rm -rf bin/
+
+  context:
+    desc: Collect all .go files into a single flattened context.txt
+    cmds:
+      - |
+        echo "=== asset-cat Full Source Context ===" > context.txt
+        echo "Generated: $(date)" >> context.txt
+        echo "" >> context.txt
+        find . -name "*.go" -not -path "./bin/*" | sort | while read -r file; do
+          echo "================================================" >> context.txt
+          echo "FILE: $file" >> context.txt
+          echo "================================================" >> context.txt
+          cat "$file" >> context.txt
+          echo "" >> context.txt
+        done
+        echo "=== End of Context ===" >> context.txt
+        echo "Context written to context.txt ($(wc -l < context.txt) lines)"
