@@ -23,7 +23,8 @@ The following diagram illustrates the folder structure, Go files, tests, and web
 │   │       ├── 0001-record-architecture-decisions.md
 │   │       ├── 0002-use-go-as-the-primary-programming-language.md
 │   │       ├── 0003-pipeline-for-3d-wireframe-rendering.md
-│   │       └── 0004-terminal-and-html-canvas-rendering-interfaces.md
+│   │       ├── 0004-terminal-and-html-canvas-rendering-interfaces.md
+│   │       └── 0005-restrict-glb-extractor-to-static-geometry-only.md
 │   └── documents/
 │       └── project_tree.md
 ├── internal/

@@ -53,6 +53,7 @@ Architectural decisions are tracked using [Architecture Decision Records (ADRs)]
 1. **Go (Golang)**: Chosen as the core programming language for efficiency, high performance on matrix arithmetic, and single-binary portability with zero external system dependencies. ([ADR 0002](design/decisions/architecture/0002-use-go-as-the-primary-programming-language.md))
 2. **Custom Math & Projection Engine**: To keep the repository lightweight and decoupled from heavy engines like Godot, the 3D-to-2D projection math and matrix translations are custom-written. ([ADR 0003](design/decisions/architecture/0003-pipeline-for-3d-wireframe-rendering.md))
 3. **Decoupled 2D Canvas Target**: An abstract `Canvas2D` Go interface delegates rasterization/drawing, enabling clean plug-and-play behavior for rendering to terminal emulators or browser clients over WebSockets. ([ADR 0004](design/decisions/architecture/0004-terminal-and-html-canvas-rendering-interfaces.md))
+4. **Static Geometry Extractor Scope**: Restrict the GLB extractor to static wireframe geometry (vertices, edges, and faces), explicitly omitting animations, skins, materials, and textures. ([ADR 0005](design/decisions/architecture/0005-restrict-glb-extractor-to-static-geometry-only.md))
 
 ---
 
@@ -73,7 +74,8 @@ Architectural decisions are tracked using [Architecture Decision Records (ADRs)]
 │           ├── 0001-record-architecture-decisions.md
 │           ├── 0002-use-go-as-the-primary-programming-language.md
 │           ├── 0003-pipeline-for-3d-wireframe-rendering.md
-│           └── 0004-terminal-and-html-canvas-rendering-interfaces.md
+│           ├── 0004-terminal-and-html-canvas-rendering-interfaces.md
+│           └── 0005-restrict-glb-extractor-to-static-geometry-only.md
 ├── internal/
 │   ├── geom/                 # 3D Math & Geometry Engine
 │   │   ├── vector3.go / vector3_test.go
