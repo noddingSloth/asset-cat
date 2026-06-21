@@ -321,3 +321,80 @@ func TestInspectTuxMesh(t *testing.T) {
 
 	t.Logf("Inspection written to tux_inspection.txt")
 }
+func TestBoundingBox(t *testing.T) {
+	model := extractor.Model{
+		Meshes: []extractor.Mesh{
+			{
+				Vertices: []geom.Vector3{
+					{X: -1, Y: -2, Z: -3},
+					{X: 1, Y: 2, Z: 3},
+					{X: 0, Y: 0, Z: 0},
+				},
+			},
+		},
+	}
+
+	model.ComputeBoundingBox()
+
+	bb := model.BoundingBox
+	if bb.Min.X != -1 || bb.Min.Y != -2 || bb.Min.Z != -3 {
+		t.Errorf("expected min (-1, -2, -3), got %+v", bb.Min)
+	}
+	if bb.Max.X != 1 || bb.Max.Y != 2 || bb.Max.Z != 3 {
+		t.Errorf("expected max (1, 2, 3), got %+v", bb.Max)
+	}
+
+	center := bb.Center()
+	if center.X != 0 || center.Y != 0 || center.Z != 0 {
+		t.Errorf("expected center (0, 0, 0), got %+v", center)
+	}
+
+	size := bb.Size()
+	if size.X != 2 || size.Y != 4 || size.Z != 6 {
+		t.Errorf("expected size (2, 4, 6), got %+v", size)
+	}
+
+	maxDim := bb.MaxDimension()
+	if maxDim != 6 {
+		t.Errorf("expected max dimension 6, got %v", maxDim)
+	}
+}
+
+func TestBoundingBoxEmptyModel(t *testing.T) {
+	model := extractor.Model{
+		Meshes: []extractor.Mesh{},
+	}
+
+	model.ComputeBoundingBox()
+	// Should not panic, bounding box is zero-valued
+	if model.BoundingBox.Min != (geom.Vector3{}) || model.BoundingBox.Max != (geom.Vector3{}) {
+		t.Error("expected zero bounding box for empty model")
+	}
+}
+
+func TestTuxModelBoundingBox(t *testing.T) {
+	file := openTuxAsset(t)
+	defer file.Close()
+
+	ext := extractor.NewGLBExtractor(file)
+	model, err := ext.ExtractModel()
+	if err != nil {
+		t.Fatalf("ExtractModel failed: %v", err)
+	}
+
+	bb := model.BoundingBox
+	t.Logf("Tux bounding box: min=%+v, max=%+v", bb.Min, bb.Max)
+	t.Logf("Center: %+v, Size: %+v", bb.Center(), bb.Size())
+	t.Logf("Max dimension: %v", bb.MaxDimension())
+
+	// Bounding box should be non-zero for Tux
+	if bb.Min == bb.Max {
+		t.Error("expected non-zero bounding box for Tux model")
+	}
+
+	// Center should be reasonably close to origin for Tux
+	center := bb.Center()
+	if center.X > 2 || center.Y > 2 || center.Z > 2 {
+		t.Errorf("Tux center seems far from origin: %+v", center)
+	}
+}

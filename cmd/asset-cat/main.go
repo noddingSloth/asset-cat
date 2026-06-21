@@ -22,17 +22,20 @@ func main() {
 	cmdArgs := os.Args[1:]
 
 	// Check if first argument is a subcommand
-	if len(cmdArgs) > 0 && !strings.HasPrefix(cmdArgs[0], "-") {
-		switch cmdArgs[0] {
+	if len(cmdArgs) > 0 {
+		arg := cmdArgs[0]
+		// Accept both "serve" and "--serve" as subcommand specifiers
+		normalized := strings.TrimPrefix(arg, "--")
+		switch normalized {
 		case "run", "json", "serve":
-			cmd = cmdArgs[0]
+			cmd = normalized
 			cmdArgs = cmdArgs[1:]
-		case "help", "-h", "--help":
+		case "help", "-h":
 			printUsage()
 			os.Exit(0)
 		}
 	} else {
-		// No subcommand — check for top-level help flags
+		// No arguments at all
 		for _, arg := range cmdArgs {
 			if arg == "-h" || arg == "--help" || arg == "help" {
 				printUsage()
@@ -41,7 +44,6 @@ func main() {
 		}
 	}
 
-	// Set up args for the subcommand's flag parser
 	os.Args = append([]string{cmd}, cmdArgs...)
 
 	switch cmd {
